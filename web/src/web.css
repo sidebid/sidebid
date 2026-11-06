@@ -1,0 +1,69 @@
+/* Additions for the real site: things the prototype only mocked. Same tokens, same type scale. */
+.art img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.art.has-img::after{display:none}
+.art .mark text{font-family:var(--d);font-stretch:75%}
+.art.tiny{width:28px}
+.tag.warn{gap:6px;border-color:#FFC24A;color:#FFC24A}
+.tag.warn .ic{width:11px;height:11px}
+.tag.sm{font-size:9.5px;padding:3px 6px}
+.card-f{gap:8px}
+.card-f .tag.warn{margin-left:auto;margin-right:8px}
+.lot-id p .tag.warn{margin-left:8px}
+.warn-t{color:#FFC24A}
+.busy{color:var(--ink);display:inline-flex;align-items:center;gap:8px}
+.busy::before{content:"";width:10px;height:10px;border:2px solid var(--acc);border-right-color:transparent;border-radius:50%;animation:spin .8s linear infinite}
+@keyframes spin{to{transform:rotate(360deg)}}
+.warnm{color:var(--ink)}
+.warnm::before{content:"";display:inline-block;width:8px;height:8px;background:#FFC24A;margin-right:8px;vertical-align:1px}
+.srow.off{opacity:.55;cursor:default}
+.srow.off:hover{border-color:var(--line2)}
+.srow-w{width:20px;height:20px;flex:none}
+a.srow{color:inherit}
+.sheet-msg{font-size:13.5px;line-height:1.5;color:var(--ink2);margin-top:12px;min-height:1px}
+.sheet .rows{margin:10px 0 6px}
+.sheet .stage-a{margin-top:6px}
+.sheet .stage-a .btn{margin-top:10px}
+.sheet .credits{margin-top:16px}
+.credits{border-color:var(--acc)}
+.credit-l{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+.credit-l li{display:grid;grid-template-columns:1fr auto auto;align-items:center;gap:14px;border-top:1px solid var(--line);padding-top:10px}
+.credit-l .num{font:600 15px var(--m);color:var(--ink)}
+.credit-l .btn{height:36px;margin:0}
+.lot-r>.credits{margin-bottom:16px}
+.sec.tight .credits,.sec.tight .mylist{margin-bottom:24px}
+.my-l{display:flex;flex-direction:column;margin-top:10px}
+.my-l li{display:grid;grid-template-columns:28px 1fr auto auto;align-items:center;gap:14px;padding:10px 0;border-top:1px solid var(--line)}
+.my-l a{display:flex;flex-direction:column}
+.my-l a b{font:800 18px/1 var(--d);font-stretch:80%}
+.my-l a span{font-size:12.5px;color:var(--ink3);margin-top:3px}
+.my-l .num{font:600 13px var(--m)}
+.my-l .btn{height:34px}
+.pod.open .pod-who b{color:var(--ink2)}
+.pod.open .pod-bar{opacity:.55}
+.pod-open{display:grid;place-items:center;border:1px dashed var(--line2);color:var(--ink3);border-radius:50%}
+.pod-open .ic{width:20px;height:20px}
+.pot-wait{font-size:.5em;letter-spacing:0;white-space:nowrap}
+.empty.in-box{border:0;padding:32px 0 8px;background:none}
+.foot-up a{color:var(--ink2);border-bottom:1px dashed var(--line2);word-break:break-all}
+.foot-up a:hover{color:var(--acc)}
+.mod.still,.pf.still,.card.still,.pod.still{animation:none}
+.checks .rows{margin-top:6px}
+.stage .fine[data-actmsg]{margin-top:14px}
+.stage.acc .giant{display:block;margin-top:8px}
+.d-addr button:disabled{cursor:default;color:var(--ink3)}
+.d-link{display:inline-flex;align-items:center;gap:8px}
+.auc-coin h2{overflow-wrap:anywhere}
+@media (max-width:720px){
+  .credit-l li{grid-template-columns:1fr auto}.credit-l li .txl{display:none}
+  .my-l li{grid-template-columns:28px 1fr auto}.my-l li>.num{display:none}
+  .card-f .tag.warn{display:none}
+  .foot-b{flex-direction:column}
+}
+.auc-n+.btn,.auc-coin+.btn{margin-top:26px}
+.avs{position:relative;display:inline-block;overflow:hidden}
+.avs svg,.avs img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:inherit}
+.avs img{color:transparent;font-size:0}
+.card-f .seller{min-width:0;overflow:hidden}.card-f .seller span{overflow:hidden;text-overflow:ellipsis}
+.card-f .card-b{flex:none}
+.addr-full,.foot-up,.foot-up a{text-transform:none}
+.stream li.stream-empty{display:block}

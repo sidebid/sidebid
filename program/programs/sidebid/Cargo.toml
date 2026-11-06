@@ -1,0 +1,32 @@
+[package]
+name = "sidebid"
+version = "0.1.0"
+edition = "2021"
+description = "Sidebid: sell tokens on the side to the best bid without touching the chart"
+
+[lib]
+crate-type = ["cdylib", "lib"]
+name = "sidebid"
+
+[features]
+default = []
+cpi = ["no-entrypoint"]
+no-entrypoint = []
+no-idl = []
+no-log-ix-name = []
+idl-build = ["anchor-lang/idl-build", "anchor-spl/idl-build"]
+anchor-debug = []
+custom-heap = []
+custom-panic = []
+# Shutdown build: refunds, cancels, closes and credits only. See README.
+withdraw-only = []
+# Tests only: compiles the public test listing key instead of the real one.
+# Never on for a release build; scripts/check-release.mjs refuses it.
+test-listing-key = []
+
+[dependencies]
+anchor-lang = "=1.2.2"
+anchor-spl = "=1.2.2"
+solana-instructions-sysvar = "3"
+solana-sdk-ids = "3"
+solana-security-txt = "=1.1.3"

@@ -1,0 +1,207 @@
+/* Round 2: the logo and wordmark, the logo's blue as a small accent, one numeric face, live facts and full empty states. */
+:root{--blue:#1F3BFF;--blue2:#8E9CFF;--blue3:#4A63FF;--n:'Spline Sans Mono',ui-monospace,monospace}
+/* the diagrams keep the text face; phones get a little more display size */
+.dg,.dg text{font-family:var(--b)}
+@media (max-width:600px){:root{--dz:.7}}
+/* the expanded display face sets its words close: open the word gaps on headings a little */
+h1,h2,h3,.be-t,.fact b,.o3-who b,.card.slot b,.foot-say{word-spacing:.1em}
+
+/* ---- numbers: every price, amount, countdown and stat in one face with tabular figures */
+.num,.giant,.bignum,.segcd .cd,.cd,.st b,.pf-n,.drops .dr-at,.pod-bar b,.card-m .cd,.tbl td.num,.tbl .r.num,.d-table .r,.credit-l .num,.my-l .num,.ck b .num,.upb-in .cd{font-family:var(--n);font-variant-numeric:tabular-nums lining-nums;font-feature-settings:"tnum" 1,"lnum" 1}
+.giant{font-weight:700;font-stretch:normal;letter-spacing:-.04em}
+.giant small,.bignum small,.st b small{font-family:var(--n);font-weight:500;letter-spacing:0}
+.bignum{font-weight:700;font-stretch:normal;letter-spacing:-.04em}
+.card-n .bignum{font-size:calc(40px*var(--nz))}
+.st b{font-weight:700;font-stretch:normal;letter-spacing:-.04em}
+.pf-n{font-weight:700;font-stretch:normal;letter-spacing:-.05em}
+.drops .dr-at{font-weight:700;font-stretch:normal;letter-spacing:-.03em}
+.segcd .cd{font-weight:600;letter-spacing:-.01em}
+.t3-pot .giant{letter-spacing:-.05em}
+.rw-h .giant{letter-spacing:-.05em}
+.tbl td.num,.tbl .r.num{font-size:13.5px}
+
+/* ---- header: the logo and the wordmark */
+.brand{gap:12px;align-items:center}
+.brand-logo{height:42px;width:auto;display:block;flex:none}
+.brand-wm{display:block;height:28px;width:auto;flex:none}
+.brand .wm{display:block;font:800 22px/1 var(--d);letter-spacing:-.01em;color:var(--ink);white-space:nowrap}
+.foot-wm{display:block;height:44px;width:auto;margin:0 0 22px}
+@media (max-width:760px){.brand{gap:9px}.brand-logo{height:34px}.brand-wm{height:22px}.foot-wm{height:36px}}
+@media (max-width:379px){.brand-wm{display:none}}
+
+/* ---- blue, the logo's dot: a small accent on proof links, the check strip and the trust line; text stays cream */
+.txl{color:var(--ink);border-bottom-color:rgba(31,59,255,.7)}
+.txl:hover{color:#fff;border-color:var(--blue3)}
+a.ck:hover{background:rgba(31,59,255,.08)}
+a.ck:hover>.ic{color:var(--blue3)}
+.checkit-h .k{color:var(--ink2)}
+.ck.ok b{color:var(--ink)}
+.trustline{display:flex;flex-wrap:wrap;align-items:center;gap:8px 0;font:500 12.5px/1.3 var(--m);letter-spacing:.02em;color:var(--ink2)}
+.trustline:empty{display:none}
+.trustline a{display:inline-flex;align-items:center;gap:7px;color:var(--ink2);border-bottom:1px solid transparent;padding-bottom:1px}
+.trustline a:hover{color:var(--ink);border-color:var(--blue3)}
+.trustline .ic{width:13px;height:13px;stroke-width:2.4;color:var(--blue3)}
+.trustline .sep{width:5px;height:5px;border-radius:50%;background:var(--blue);margin:0 14px}
+.hero-trust{margin-top:22px}
+.foot-trust{margin-top:22px}
+
+/* ---- contract address on a card: copy without opening the card */
+.cacopy{border-radius:999px;transition:border-color .2s,color .2s,background .2s;cursor:pointer}
+.cacopy .num{font:500 11.5px var(--n);letter-spacing:.01em;text-transform:none}
+.cacopy:hover{border-color:var(--blue3);color:#fff;background:rgba(31,59,255,.12)}
+.cacopy.sm{padding:3px 8px 3px 9px;margin-top:8px;color:var(--ink3);position:relative;z-index:2}
+.cacopy.sm .ic{width:11px;height:11px}
+.cacopy.full{max-width:100%;margin-top:6px}
+.cacopy.full .num{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;min-width:0}
+.card-id .cacopy{display:inline-flex}
+.lot-id h1 a:hover{color:var(--acc)}
+
+/* ---- logos: small sizes */
+.art.tiny,.art.mini,.art.tp-art,.art.card-art,.art.lot-art,.art.auc-art,.art.sum-art{border-radius:50%}
+.av{overflow:hidden;position:relative}.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;border-radius:50%}
+.av.sm{width:20px;height:20px}
+.btn.conn{gap:8px}.btn.conn .av{width:22px;height:22px}
+.sheet-who{display:flex;align-items:center;gap:14px}
+.fd-w{white-space:nowrap}.fd-w .seller{gap:6px}.fd-w .ic{width:12px;height:12px;color:var(--ink3);margin:0 6px;vertical-align:middle}
+.tp-w .seller{gap:6px}.tp-w .ic{width:12px;height:12px;color:var(--ink3);margin:0 4px}
+
+/* ---- live facts */
+.facts{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);border-radius:var(--r,0);overflow:hidden}
+.fact{position:relative;display:flex;flex-direction:column;gap:10px;padding:20px 22px 22px;background:var(--bg2);min-height:112px;transition:background .2s}
+.fact:hover{background:#121428}
+.fact b{font:700 22px/1.15 var(--d);color:var(--ink)}
+.fact b .cd,.fact b .addr{font:600 21px var(--n);color:inherit;background:none;border:0;padding:0}
+.fact.blue b{color:var(--ink)}
+.fact.blue>.ic{color:var(--blue3)}
+.fact>.ic{position:absolute;right:16px;top:18px;width:13px;height:13px;color:var(--ink3)}
+.fact:hover>.ic{color:var(--blue3)}
+.facts-k{margin-bottom:14px}
+
+/* ---- the board with nothing live */
+.board-empty{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);gap:clamp(28px,4vw,64px);align-items:center;padding:clamp(32px,4vw,56px);border:1px solid var(--line2);border-radius:var(--r,0);background:radial-gradient(60% 90% at 0% 0%,rgba(255,90,10,.12),transparent 70%),radial-gradient(50% 80% at 100% 100%,rgba(31,59,255,.12),transparent 70%),var(--bg2);min-height:340px}
+.be-t{font:800 calc(clamp(34px,3.2vw,52px)*var(--dz))/.98 var(--d);font-stretch:80%;letter-spacing:-.015em;margin-top:18px;max-width:560px}
+.be-l .lede{margin-top:16px;max-width:520px}
+.be-a{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.be-r .k{margin-bottom:14px}
+.be-r .facts{grid-template-columns:repeat(2,minmax(0,1fr))}
+
+/* ---- how to sell, with the X example */
+.how-g{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);gap:clamp(32px,5vw,96px);align-items:start}
+.how .d-steps{margin:8px 0 28px}
+.how-x .xpost{margin:22px 0 18px}
+.how .shead{margin-bottom:20px}
+
+/* ---- rewards: open places */
+.open3{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin-top:8px}
+.o3{display:flex;flex-direction:column;gap:18px;padding:22px 24px 24px;border:1px dashed var(--line2);border-radius:var(--r,0);background:var(--bg2)}
+.o3.p0{border-color:rgba(255,90,10,.55);background:linear-gradient(160deg,rgba(255,90,10,.10),transparent 60%),var(--bg2)}
+.o3 .rank{align-self:flex-start}
+.o3-who b{display:block;font:700 22px/1.1 var(--d)}
+.o3-who span{display:block;font-size:13.5px;color:var(--ink2);margin-top:6px}
+.o3-v b{display:block;font:700 calc(34px*var(--nz))/1 var(--n);letter-spacing:-.04em;color:var(--ink)}
+.o3.p0 .o3-v b{color:var(--acc)}
+.o3-v b small{font-size:14px;color:var(--ink3);letter-spacing:0}
+.o3-v .k{margin-top:8px}
+.o3-f{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin-top:18px}
+.o3-f .fine{margin:0}
+
+/* ---- coin page */
+.coin-b{margin-top:clamp(28px,3vw,44px)}
+.coin-b .shead{margin-bottom:18px}
+
+/* ---- first paint from the server, before the script draws */
+.fp .top-r .btn{height:40px}
+.fp-dl{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,1fr));gap:1px;background:var(--line);border:1px solid var(--line);margin-top:32px;grid-column:1/-1}
+.fp-dl div{background:var(--bg2);padding:16px 18px}
+.fp-dl dt{font:500 11px var(--m);letter-spacing:.08em;text-transform:uppercase;color:var(--ink3)}
+.fp-dl dd{margin-top:6px;font:600 15px var(--n);word-break:break-all}
+.fp-h{grid-column:1/-1;font:600 12px var(--m);letter-spacing:.08em;text-transform:uppercase;color:var(--ink2);margin-top:36px}
+.fp-list{grid-column:1/-1;display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:10px;margin-top:14px}
+.fp-list a{display:block;padding:14px 16px;background:var(--bg2);border:1px solid var(--line2);font:500 14px var(--n)}
+.fp-list b{font:800 18px var(--d);margin-right:6px}
+.fp-more{grid-column:1/-1;margin-top:28px}
+.phead.nf{min-height:46vh}
+
+@media (max-width:1140px){.board-empty{grid-template-columns:minmax(0,1fr)}.how-g{grid-template-columns:minmax(0,1fr)}}
+@media (max-width:760px){
+  .open3{grid-template-columns:minmax(0,1fr)}
+  .o3{display:grid;grid-template-columns:auto minmax(0,1fr);align-items:center;gap:12px 14px;padding:16px 18px}.o3-v{grid-column:1/-1;display:flex;align-items:baseline;justify-content:space-between;gap:12px}.o3-v .k{margin:0}.o3-v b{font-size:26px}.o3-who b{font-size:18px}.o3-who span{margin-top:2px}
+  .be-r .facts,.facts{grid-template-columns:minmax(0,1fr)}
+  .fact{min-height:0;padding:16px 18px}.fact b{font-size:19px}
+  .board-empty{padding:26px 20px;min-height:0}
+  .be-a .btn{flex:1 1 100%}
+  .trustline .sep{margin:0 10px}
+  .giant{letter-spacing:-.05em}
+}
+
+/* ---- the Solana mark before every SOL: cap height, on the baseline, a hair of space */
+.solu{white-space:nowrap}
+.solm{display:inline-block;height:.68em;width:.868em;margin:0 .2em 0 .04em;vertical-align:baseline;overflow:visible}
+.giant .solm,.bignum .solm,.st b .solm,.o3-v .solm{height:.62em;width:.79em}
+.btn .solm{height:.72em;width:.92em}
+.field input,.custom input,#bidIn,#sellCustom,#sellExact{font-family:var(--n);font-variant-numeric:tabular-nums;letter-spacing:-.02em}
+.o3-v b{white-space:nowrap}
+@media (max-width:760px){.o3-v .k{text-align:right;max-width:46%}}
+.xh{color:inherit;text-decoration:none;cursor:pointer;text-underline-offset:3px;text-decoration-thickness:1px}
+.xh:hover,.xh:focus-visible{text-decoration:underline;text-decoration-color:currentColor}
+.lot-id{min-width:0;max-width:100%}
+/* the lot facts on a phone: a long handle wraps inside its own cell */
+@media (max-width:760px){.lot-meta dl div:first-child{flex:1.5}.lot-meta dd{min-width:0;overflow-wrap:anywhere}.lot-meta dd .seller{display:inline-flex;max-width:100%;min-width:0}.lot-meta dd .seller>*{min-width:0;overflow:hidden;text-overflow:ellipsis}}
+.foot-mark{text-transform:lowercase}
+
+/* Hubot Sans at normal width for the hero paragraph, self hosted under its own name so the wide display cut stays as it is */
+@font-face{font-family:'Hubot Sans Text';font-style:normal;font-weight:500;font-display:swap;src:url(/brand/fonts/hubot-sans-100-500-latin.woff2) format('woff2');unicode-range:U+0000-00FF,U+0131,U+0152-0153,U+02BB-02BC,U+02C6,U+02DA,U+02DC,U+0304,U+0308,U+0329,U+2000-206F,U+20AC,U+2122,U+2191,U+2193,U+2212,U+2215,U+FEFF,U+FFFD}
+.hero .lede.hero-lede{font:500 21px/1.5 'Hubot Sans Text',var(--d);font-stretch:100%;letter-spacing:0;word-spacing:.04em;max-width:34em;color:#CFCBC3}
+@media (max-width:1100px){.hero .lede.hero-lede{font-size:19px}}
+@media (max-width:640px){.hero .lede.hero-lede{font-size:17px;line-height:1.55}}
+/* Privy's own "Protected by Privy" lockup under sign in and connect, small and quiet */
+.privy-mark{margin:14px 0 0;line-height:0}
+.privy-mark img{height:12px;width:auto;opacity:.85;display:inline-block}
+.sheet .privy-mark{margin-top:18px;text-align:center}
+.hero-a .privy-mark{flex-basis:100%;margin-top:2px}
+/* X post card: a post from our account, drawn from the stored post in X's layout, in the site's colours */
+.xcard{display:flex;flex-direction:column;gap:10px;padding:14px 16px 12px;border:1px solid var(--line2);border-radius:16px;background:#0B0B0B;color:var(--ink);text-align:left;transition:border-color .2s,background .2s}
+a.xcard:hover,.xcard[role=link]:hover{border-color:var(--blue3);background:#0E0F18;cursor:pointer}
+.xcard .xc-h{display:flex;align-items:center;gap:10px;min-width:0}
+.xcard .xc-av{flex:none;width:40px;height:40px;border-radius:50%;overflow:hidden;background:var(--bg3)}
+.xcard .xc-av img{width:100%;height:100%;object-fit:cover;display:block}
+.xcard .xc-n{display:flex;flex-direction:column;min-width:0;line-height:1.25}
+.xcard .xc-n b{display:inline-flex;align-items:center;gap:3px;font:700 15px var(--b);color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.xcard .xc-n span{font:400 14px var(--b);color:var(--ink3)}
+.xcard .xc-v{width:17px;height:17px;color:#1D9BF0;flex:none}
+.xcard .xc-x{width:18px;height:18px;margin-left:auto;flex:none;color:var(--ink)}
+.xcard .xc-t{display:block;font:400 15px/1.45 var(--b);color:var(--ink);overflow-wrap:anywhere}
+.xcard .xc-l{color:#1D9BF0}
+.xcard .xc-f{display:flex;align-items:center;justify-content:space-between;gap:12px;padding-top:10px;border-top:1px solid var(--line);font:400 13px var(--b);color:var(--ink3)}
+.xcard .xc-o{color:#1D9BF0;font-weight:600}
+.xcard .xc-p{align-self:flex-start;font:600 10.5px var(--m);letter-spacing:.08em;text-transform:uppercase;color:#141414;background:#FFD23F;padding:3px 7px;border-radius:999px}
+.xcard.sm{gap:7px;padding:10px 12px 9px;border-radius:12px;margin:12px 0 2px}
+.xcard.sm .xc-av{width:28px;height:28px}
+.xcard.sm .xc-n{flex-direction:row;align-items:baseline;gap:6px}
+.xcard.sm .xc-n b{font-size:13.5px}
+.xcard.sm .xc-n span{font-size:12.5px}
+.xcard.sm .xc-x{width:15px;height:15px}
+.xcard.sm .xc-t{font-size:13.5px;line-height:1.4;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden}
+.xcard.sm .xc-f{padding-top:7px;font-size:12px}
+.xbox .box-h{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:14px}
+.xbox .box-h .box-t{margin:0}
+.tag.drop{border-color:rgba(255,90,10,.6);color:var(--acc2);background:rgba(255,90,10,.08)}
+.card-drop{display:flex;align-items:center;gap:8px;margin-top:14px;font-size:12.5px;color:var(--ink2);flex-wrap:wrap}
+.lot-id .eyebrow .tag.drop{margin-left:6px;vertical-align:middle}
+.dplan{grid-template-columns:repeat(6,minmax(0,1fr))}
+.dplan li{gap:4px;min-height:190px}
+.dplan li.next{border-color:var(--acc)}
+.dplan li.dr-sold{border-color:rgba(31,59,255,.55);background:linear-gradient(180deg,rgba(31,59,255,.12),var(--bg) 70%)}
+.dplan li.dr-skipped{opacity:.62}
+.dplan small.dr-ok b{color:var(--ink)}
+.dplan small.dr-live{color:var(--acc2);font-weight:600}
+.dplan .dr-cd{font:500 12px var(--m);color:var(--ink3);margin-top:auto}
+.dplan .txl,.dplan .linkb{font-size:12.5px;margin-top:auto;align-self:flex-start}
+.dplan .dr-pv{font:600 10px var(--m);letter-spacing:.06em;text-transform:uppercase;color:#FFD23F;margin-top:6px}
+@media (max-width:1100px){.dplan{grid-template-columns:repeat(4,minmax(0,1fr))}}
+@media (max-width:720px){.dplan{grid-template-columns:repeat(2,minmax(0,1fr))}.dplan li{min-height:0}}
+/* Paste a token CA on the sell form */
+.sellca{margin:14px 0 0}
+.custom.ca{flex:1;min-width:0;max-width:420px}
+.custom.ca input{flex:1;min-width:0;width:auto;text-align:left;font:500 13px var(--m);letter-spacing:0}
+.custom.ca .linkb{flex:none}

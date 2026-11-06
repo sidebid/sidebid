@@ -1,0 +1,451 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Upgrade Authority</title>
+<style>
+:root {
+  --bg: #f6f7fb; --card: #ffffff; --ink: #14161f; --muted: #5c6275; --line: #dde0ea;
+  --accent: #4f46e5; --ok: #0f8a4b; --bad: #c62828; --warn-bg: #fff4e5; --warn-ink: #7a4300;
+  --danger-bg: #fdecec; --mono: ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+@media (prefers-color-scheme: dark) {
+  :root { --bg: #12141c; --card: #1b1e29; --ink: #eceef5; --muted: #9aa0b4; --line: #2c3040;
+    --accent: #8b85ff; --ok: #3ccf7f; --bad: #ff6b6b; --warn-bg: #3a2a10; --warn-ink: #ffcf8a; --danger-bg: #3a1717; }
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 15px/1.5 system-ui, -apple-system, Segoe UI, sans-serif; }
+main { max-width: 860px; margin: 0 auto; padding: 24px 16px 64px; }
+h1 { font-size: 22px; margin: 0 0 4px; }
+h2 { font-size: 17px; margin: 0 0 10px; }
+p { margin: 6px 0; }
+.sub { color: var(--muted); margin-bottom: 18px; }
+.card { background: var(--card); border: 1px solid var(--line); border-radius: 12px; padding: 16px; margin: 14px 0; }
+.row { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; }
+label { display: block; font-size: 13px; color: var(--muted); margin: 8px 0 4px; }
+input[type=text] { width: 100%; padding: 9px 10px; border: 1px solid var(--line); border-radius: 8px; background: var(--bg); color: var(--ink); font: 14px var(--mono); }
+.row input[type=text] { flex: 1; min-width: 200px; width: auto; }
+button { padding: 9px 14px; border-radius: 8px; border: 1px solid var(--line); background: var(--card); color: var(--ink); font: 600 14px system-ui, sans-serif; cursor: pointer; }
+button.primary { background: var(--accent); border-color: var(--accent); color: #fff; }
+button.danger { background: var(--bad); border-color: var(--bad); color: #fff; }
+button:disabled { opacity: .45; cursor: not-allowed; }
+dl { display: grid; grid-template-columns: 170px 1fr; gap: 6px 12px; margin: 0; }
+dt { color: var(--muted); font-size: 13px; padding-top: 2px; }
+dd { margin: 0; font: 13.5px var(--mono); word-break: break-all; }
+.pill { display: inline-block; padding: 2px 9px; border-radius: 99px; font: 600 12.5px system-ui, sans-serif; }
+.pill.ok { background: color-mix(in srgb, var(--ok) 18%, transparent); color: var(--ok); }
+.pill.bad { background: color-mix(in srgb, var(--bad) 18%, transparent); color: var(--bad); }
+.pill.mid { background: color-mix(in srgb, var(--muted) 18%, transparent); color: var(--muted); }
+.warn { background: var(--warn-bg); color: var(--warn-ink); border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 14px; }
+.danger-box { background: var(--danger-bg); border-radius: 8px; padding: 10px 12px; margin: 8px 0; font-size: 14px; }
+.status { font: 13px var(--mono); white-space: pre-wrap; word-break: break-all; margin-top: 10px; color: var(--muted); }
+.status.err { color: var(--bad); }
+.result { margin-top: 10px; padding: 10px 12px; border: 1px solid var(--ok); border-radius: 8px; }
+.result a { font: 13px var(--mono); word-break: break-all; color: var(--accent); }
+.wallets button { display: inline-flex; align-items: center; gap: 8px; }
+.wallets img { width: 20px; height: 20px; border-radius: 4px; }
+.muted { color: var(--muted); font-size: 13px; }
+@media (max-width: 560px) { dl { grid-template-columns: 1fr; } dt { padding-top: 6px; } }
+</style>
+</head>
+<body>
+<main>
+  <h1>Program upgrade authority</h1>
+  <p class="sub">Private tool. Reads the program from chain and lets the authority wallet revoke, close or hand over the upgrade authority. Every transaction is simulated before the wallet is asked to sign.</p>
+
+  <section class="card">
+    <h2>Program</h2>
+    <label for="rpc">RPC URL</label>
+    <input type="text" id="rpc" value="https://api.mainnet-beta.solana.com" spellcheck="false">
+    <label for="pid">Program ID</label>
+    <div class="row">
+      <input type="text" id="pid" value="5ATUD6arr5QJQtGxH8naPwFcZoDsuosmAVJcsaZ19HDp" spellcheck="false">
+      <button id="refresh" class="primary">Load from chain</button>
+    </div>
+    <div id="state" style="margin-top:14px"></div>
+    <div id="stateMsg" class="status"></div>
+  </section>
+
+  <section class="card">
+    <h2>Wallet</h2>
+    <div id="walletBox"></div>
+    <div id="walletMsg" class="status"></div>
+  </section>
+
+  <section class="card" id="revokeCard">
+    <h2>Revoke: make the program permanent</h2>
+    <div class="danger-box"><b>This can never be undone.</b> After revoke nobody, you included, can upgrade or close the program again. The deposit (<span class="dep">the program data lamports</span>) stays locked in the program forever.</div>
+    <label for="revokeConfirm">Type REVOKE to enable the button</label>
+    <div class="row">
+      <input type="text" id="revokeConfirm" autocomplete="off" spellcheck="false">
+      <button id="revokeBtn" class="danger" disabled>Revoke forever</button>
+    </div>
+    <div id="revokeMsg" class="status"></div>
+  </section>
+
+  <section class="card" id="closeCard">
+    <h2>Close: shut the program and take back the deposit</h2>
+    <div class="danger-box"><b>The program stops working the moment this lands.</b> Every instruction fails, any SOL still held in program accounts (vaults, credits) is lost for good, and this program ID can never be used again. Drain everything first (withdraw-only shutdown).</div>
+    <label for="recipient">Send the deposit to (default: connected wallet)</label>
+    <input type="text" id="recipient" spellcheck="false" placeholder="connect a wallet first">
+    <label for="closeConfirm">Type CLOSE to enable the button</label>
+    <div class="row">
+      <input type="text" id="closeConfirm" autocomplete="off" spellcheck="false">
+      <button id="closeBtn" class="danger" disabled>Close program</button>
+    </div>
+    <div id="closeMsg" class="status"></div>
+  </section>
+
+  <section class="card" id="transferCard">
+    <h2>Transfer the authority</h2>
+    <div class="warn">The new address gets full control: it can upgrade, close or revoke. A wrong or unowned address loses control for good, and no signature from the new address is asked for. Check every character.</div>
+    <label for="newAuth">New upgrade authority address</label>
+    <input type="text" id="newAuth" spellcheck="false">
+    <label for="transferConfirm">Type TRANSFER to enable the button</label>
+    <div class="row">
+      <input type="text" id="transferConfirm" autocomplete="off" spellcheck="false">
+      <button id="transferBtn" class="primary" disabled>Transfer authority</button>
+    </div>
+    <div id="transferMsg" class="status"></div>
+  </section>
+</main>
+
+<script>
+'use strict'
+// ---------- base58 ----------
+const B58 = '123456789ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnopqrstuvwxyz'
+const B58MAP = Object.fromEntries([...B58].map((c, i) => [c, i]))
+function b58encode(bytes) {
+  let zeros = 0; while (zeros < bytes.length && bytes[zeros] === 0) zeros++
+  const digits = []
+  for (let i = zeros; i < bytes.length; i++) {
+    let carry = bytes[i]
+    for (let j = 0; j < digits.length; j++) { carry += digits[j] << 8; digits[j] = carry % 58; carry = (carry / 58) | 0 }
+    while (carry) { digits.push(carry % 58); carry = (carry / 58) | 0 }
+  }
+  return '1'.repeat(zeros) + digits.reverse().map((d) => B58[d]).join('')
+}
+function b58decode(str) {
+  if (typeof str !== 'string' || !str) throw new Error('empty address')
+  let zeros = 0; while (zeros < str.length && str[zeros] === '1') zeros++
+  const bytes = []
+  for (let i = zeros; i < str.length; i++) {
+    const v = B58MAP[str[i]]; if (v === undefined) throw new Error('bad base58 character: ' + str[i])
+    let carry = v
+    for (let j = 0; j < bytes.length; j++) { carry += bytes[j] * 58; bytes[j] = carry & 0xff; carry >>= 8 }
+    while (carry) { bytes.push(carry & 0xff); carry >>= 8 }
+  }
+  return new Uint8Array([...new Array(zeros).fill(0), ...bytes.reverse()])
+}
+function pubkey(str) {
+  const b = b58decode(String(str).trim())
+  if (b.length !== 32) throw new Error('not a 32 byte address: ' + str)
+  return b
+}
+const b64decode = (s) => Uint8Array.from(atob(s), (c) => c.charCodeAt(0))
+const b64encode = (u8) => { let s = ''; for (const x of u8) s += String.fromCharCode(x); return btoa(s) }
+const eq = (a, b) => a.length === b.length && a.every((x, i) => x === b[i])
+
+// ---------- constants ----------
+const LOADER = 'BPFLoaderUpgradeab1e11111111111111111111111'
+const COMPUTE_BUDGET = 'ComputeBudget111111111111111111111111111111'
+const PRIORITY_MICROLAMPORTS = 10000n
+const CU_LIMIT = 60000
+const LAMPORTS = 1e9
+
+// ---------- RPC ----------
+const $ = (id) => document.getElementById(id)
+const rpcUrl = () => $('rpc').value.trim()
+async function rpc(method, params) {
+  const r = await fetch(rpcUrl(), { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ jsonrpc: '2.0', id: 1, method, params }) })
+  if (!r.ok) throw new Error(`RPC ${method}: HTTP ${r.status}`)
+  const j = await r.json()
+  if (j.error) throw Object.assign(new Error(`RPC ${method}: ${j.error.message}`), { data: j.error.data })
+  return j.result
+}
+const isMainnet = () => /mainnet|helius|quiknode|triton|alchemy|ankr|syndica/i.test(rpcUrl()) && !/devnet|testnet/i.test(rpcUrl())
+const clusterName = () => (/devnet/i.test(rpcUrl()) ? 'devnet' : /testnet/i.test(rpcUrl()) ? 'testnet' : isMainnet() ? 'mainnet' : 'localnet')
+function solscanTx(sig) {
+  const c = clusterName()
+  if (c === 'mainnet') return `https://solscan.io/tx/${sig}`
+  if (c === 'devnet' || c === 'testnet') return `https://solscan.io/tx/${sig}?cluster=${c}`
+  return `https://solscan.io/tx/${sig}?cluster=custom&customUrl=${encodeURIComponent(rpcUrl())}`
+}
+
+// ---------- chain state ----------
+// Program account (36 bytes):        u32 tag = 2 | programdata pubkey
+// ProgramData header (45 bytes):     u32 tag = 3 | u64 slot | u8 option | authority pubkey (if option = 1) | ELF...
+let chain = null // { programId, programdata, slot, authority (string|null), lamports, dataLen, closed }
+async function loadState() {
+  const programId = $('pid').value.trim()
+  pubkey(programId)
+  const prog = await rpc('getAccountInfo', [programId, { encoding: 'base64', commitment: 'confirmed' }])
+  if (!prog.value) throw new Error('No account at this program ID on this RPC.')
+  if (prog.value.owner !== LOADER) throw new Error(`Not an upgradeable program: owner is ${prog.value.owner}`)
+  const pd = b64decode(prog.value.data[0])
+  const dv = new DataView(pd.buffer)
+  if (pd.length < 36 || dv.getUint32(0, true) !== 2) throw new Error('Account is not a Program account of the upgradeable loader.')
+  const programdata = b58encode(pd.slice(4, 36))
+  const info = await rpc('getAccountInfo', [programdata, { encoding: 'base64', commitment: 'confirmed', dataSlice: { offset: 0, length: 45 } }])
+  if (!info.value) return { programId, programdata, closed: true, programLamports: prog.value.lamports }
+  const h = b64decode(info.value.data[0])
+  const hv = new DataView(h.buffer)
+  if (hv.getUint32(0, true) !== 3) throw new Error('Program data account has an unexpected layout.')
+  const slot = hv.getBigUint64(4, true)
+  const authority = h[12] === 1 ? b58encode(h.slice(13, 45)) : null
+  // dataSlice hides the full size; fetch it separately
+  const full = await rpc('getAccountInfo', [programdata, { encoding: 'base64', commitment: 'confirmed', dataSlice: { offset: 0, length: 0 } }])
+  return { programId, programdata, slot, authority, lamports: info.value.lamports, space: full.value.space ?? null, programLamports: prog.value.lamports, closed: false }
+}
+
+function fmtSol(l) { return (l / LAMPORTS).toLocaleString('en-US', { maximumFractionDigits: 9 }) + ' SOL' }
+function renderState() {
+  const el = $('state')
+  if (!chain) { el.innerHTML = ''; return }
+  const c = chain
+  const rows = [['Program ID', c.programId], ['Program data', c.programdata]]
+  if (c.closed) {
+    rows.push(['State', '<span class="pill bad">Closed</span> program data is gone; the program can never run again'])
+  } else {
+    rows.push(['Upgrade authority', c.authority ? c.authority : '<span class="pill ok">None: immutable forever</span>'])
+    rows.push(['Deposit (program data)', `${fmtSol(c.lamports)} <span class="muted">(${c.lamports.toLocaleString('en-US')} lamports)</span>`])
+    rows.push(['Last deploy slot', c.slot.toString()])
+    if (c.space != null) rows.push(['Program size', `${(c.space - 45).toLocaleString('en-US')} bytes`])
+  }
+  el.innerHTML = '<dl>' + rows.map(([k, v]) => `<dt>${k}</dt><dd id="st-${k.toLowerCase().replace(/[^a-z]+/g, '-').replace(/-$/, '')}">${v}</dd>`).join('') + '</dl>'
+  document.querySelectorAll('.dep').forEach((s) => { s.textContent = c.closed ? 'none' : fmtSol(c.lamports) })
+}
+let refreshSeq = 0
+async function refresh() {
+  const seq = ++refreshSeq
+  $('stateMsg').className = 'status'; $('stateMsg').textContent = 'Loading...'
+  let next = null, err = null
+  try { next = await loadState() } catch (e) { err = e }
+  if (seq !== refreshSeq) return // a newer load started (RPC or ID changed); drop this one
+  chain = next
+  if (err) {
+    $('stateMsg').className = 'status err'
+    $('stateMsg').textContent = err.message + (/HTTP (403|429)/.test(err.message) ? '\nThis RPC refuses or limits browser requests. Paste your own RPC URL (Helius) above and load again.' : '')
+  } else $('stateMsg').textContent = `Loaded at ${new Date().toLocaleTimeString()} (${clusterName()})`
+  renderState(); renderWallet()
+}
+
+// ---------- wallets (Wallet Standard, same approach as the site) ----------
+const KNOWN = [
+  { name: 'Phantom', get: 'https://phantom.com/download' },
+  { name: 'Solflare', get: 'https://solflare.com/download' },
+  { name: 'Backpack', get: 'https://backpack.app/downloads' },
+]
+const wallets = new Set()
+const usable = (w) => !!w?.features?.['standard:connect'] && (w.chains ?? []).some((c) => String(c).startsWith('solana:')) && (!!w.features['solana:signTransaction'] || !!w.features['solana:signAndSendTransaction'])
+let current = null // { wallet, account, address }
+function startWallets() {
+  const register = (...ws) => { for (const w of ws) if (usable(w)) wallets.add(w); renderWallet(); return () => { ws.forEach((w) => wallets.delete(w)); renderWallet() } }
+  const api = Object.freeze({ register })
+  try { window.dispatchEvent(new CustomEvent('wallet-standard:app-ready', { detail: api })) } catch {}
+  window.addEventListener('wallet-standard:register-wallet', (e) => { try { e.detail(api) } catch {} })
+}
+async function connect(wallet) {
+  $('walletMsg').className = 'status'; $('walletMsg').textContent = 'Connecting...'
+  try {
+    const r = await wallet.features['standard:connect'].connect()
+    const accts = r?.accounts ?? wallet.accounts ?? []
+    const account = accts.find((a) => (a.chains ?? wallet.chains ?? []).some((c) => String(c).startsWith('solana:'))) ?? accts[0]
+    if (!account) throw new Error('The wallet returned no account.')
+    current = { wallet, account, address: account.address }
+    wallet.features['standard:events']?.on('change', ({ accounts }) => {
+      if (!accounts) return
+      current = accounts[0] ? { wallet, account: accounts[0], address: accounts[0].address } : null
+      renderWallet()
+    })
+    $('walletMsg').textContent = ''
+  } catch (e) { $('walletMsg').className = 'status err'; $('walletMsg').textContent = 'Connect failed: ' + (e.message || e) }
+  renderWallet()
+}
+async function disconnect() {
+  const w = current?.wallet; current = null
+  try { await w?.features['standard:disconnect']?.disconnect() } catch {}
+  renderWallet()
+}
+const isAuthority = () => !!(current && chain && !chain.closed && chain.authority && chain.authority === current.address)
+function renderWallet() {
+  const box = $('walletBox')
+  if (!current) {
+    const found = [...wallets]
+    const rows = KNOWN.map((k) => ({ k, w: found.find((x) => x.name === k.name) }))
+    for (const w of found) if (!KNOWN.some((k) => k.name === w.name)) rows.push({ k: { name: w.name }, w })
+    box.innerHTML = '<div class="row wallets"></div><p class="muted">Not seeing your wallet? Open this page from a local server (see README), not straight from the file, and unlock the extension.</p>'
+    const r = box.firstChild
+    for (const { k, w } of rows) {
+      const b = document.createElement('button')
+      if (w) { b.innerHTML = (w.icon ? `<img src="${w.icon}" alt="">` : '') + `<span></span>`; b.lastChild.textContent = 'Connect ' + w.name; b.onclick = () => connect(w); b.dataset.wallet = w.name }
+      else { b.textContent = k.name + ' (not installed)'; b.disabled = true }
+      r.appendChild(b)
+    }
+  } else {
+    let verdict
+    if (!chain) verdict = '<span class="pill mid">Load the program to check</span>'
+    else if (chain.closed) verdict = '<span class="pill mid">Program is closed</span>'
+    else if (!chain.authority) verdict = '<span class="pill mid">Program is immutable: nobody is the authority</span>'
+    else if (isAuthority()) verdict = '<span class="pill ok" id="isAuth">This wallet IS the upgrade authority</span>'
+    else verdict = '<span class="pill bad" id="notAuth">This wallet is NOT the upgrade authority</span>'
+    box.innerHTML = `<dl><dt>Wallet</dt><dd></dd><dt>Address</dt><dd id="walletAddr"></dd><dt>Authority?</dt><dd>${verdict}</dd></dl><div class="row" style="margin-top:10px"><button id="disc">Disconnect</button></div>`
+    box.querySelectorAll('dd')[0].textContent = current.wallet.name
+    box.querySelectorAll('dd')[1].textContent = current.address
+    $('disc').onclick = disconnect
+    if (!$('recipient').value || $('recipient').dataset.auto === '1') { $('recipient').value = current.address; $('recipient').dataset.auto = '1' }
+  }
+  gate()
+}
+
+// ---------- transaction building ----------
+function u32(n) { const b = new Uint8Array(4); new DataView(b.buffer).setUint32(0, n, true); return b }
+function u64(n) { const b = new Uint8Array(8); new DataView(b.buffer).setBigUint64(0, BigInt(n), true); return b }
+function shortvec(n) { const out = []; for (;;) { let b = n & 0x7f; n >>= 7; if (n) { out.push(b | 0x80) } else { out.push(b); return out } } }
+const concat = (...parts) => { const len = parts.reduce((s, p) => s + p.length, 0); const o = new Uint8Array(len); let i = 0; for (const p of parts) { o.set(p, i); i += p.length } return o }
+
+// keys: [{ pubkey: base58, isSigner, isWritable }]
+function ix(programId, keys, data) { return { programId, keys, data } }
+const cuPrice = (micro) => ix(COMPUTE_BUDGET, [], concat([3], u64(micro)))
+const cuLimit = (units) => ix(COMPUTE_BUDGET, [], concat([2], u32(units)))
+
+// BPFLoaderUpgradeable SetAuthority = 4 (bincode enum tag, u32 LE).
+// Accounts: [0] programdata (writable), [1] current authority (signer), [2] new authority (optional, read only).
+// No account [2] = no new authority = immutable.
+function setAuthorityIx(programdata, current, next) {
+  const keys = [{ pubkey: programdata, isSigner: false, isWritable: true }, { pubkey: current, isSigner: true, isWritable: false }]
+  if (next) keys.push({ pubkey: next, isSigner: false, isWritable: false })
+  return ix(LOADER, keys, u32(4))
+}
+// BPFLoaderUpgradeable Close = 5.
+// Accounts: [0] programdata (writable), [1] recipient (writable), [2] authority (signer), [3] program account (writable).
+function closeIx(programdata, recipient, authority, program) {
+  return ix(LOADER, [
+    { pubkey: programdata, isSigner: false, isWritable: true },
+    { pubkey: recipient, isSigner: false, isWritable: true },
+    { pubkey: authority, isSigner: true, isWritable: false },
+    { pubkey: program, isSigner: false, isWritable: true },
+  ], u32(5))
+}
+
+// Legacy message, fee payer first.
+function compile(feePayer, instructions, blockhash) {
+  const metas = new Map()
+  const add = (k, s, w) => { const m = metas.get(k) ?? { pubkey: k, isSigner: false, isWritable: false }; m.isSigner ||= s; m.isWritable ||= w; metas.set(k, m) }
+  add(feePayer, true, true)
+  for (const i of instructions) { for (const k of i.keys) add(k.pubkey, k.isSigner, k.isWritable); add(i.programId, false, false) }
+  const all = [...metas.values()]
+  const payer = all.shift()
+  const rank = (m) => (m.isSigner ? (m.isWritable ? 0 : 1) : (m.isWritable ? 2 : 3))
+  const ordered = [payer, ...all.sort((a, b) => rank(a) - rank(b))]
+  const sigs = ordered.filter((m) => m.isSigner).length
+  const roSigned = ordered.filter((m) => m.isSigner && !m.isWritable).length
+  const roUnsigned = ordered.filter((m) => !m.isSigner && !m.isWritable).length
+  const index = new Map(ordered.map((m, i) => [m.pubkey, i]))
+  const parts = [new Uint8Array([sigs, roSigned, roUnsigned]), new Uint8Array(shortvec(ordered.length)), ...ordered.map((m) => pubkey(m.pubkey)), pubkey(blockhash), new Uint8Array(shortvec(instructions.length))]
+  for (const i of instructions) {
+    parts.push(new Uint8Array([index.get(i.programId)]), new Uint8Array(shortvec(i.keys.length)), new Uint8Array(i.keys.map((k) => index.get(k.pubkey))), new Uint8Array(shortvec(i.data.length)), i.data)
+  }
+  const message = concat(...parts)
+  if (sigs !== 1) throw new Error('Expected exactly one signer (the connected wallet).')
+  return concat(new Uint8Array(shortvec(sigs)), new Uint8Array(64 * sigs), message)
+}
+
+const chainId = () => ({ mainnet: 'solana:mainnet', devnet: 'solana:devnet', testnet: 'solana:testnet' })[clusterName()] ?? 'solana:localnet'
+
+// Build, simulate, sign, send, confirm.
+async function run(label, loaderIx, msgEl, onDone) {
+  const say = (t, err) => { msgEl.className = 'status' + (err ? ' err' : ''); msgEl.textContent = t }
+  try {
+    if (!current) throw new Error('Connect the authority wallet first.')
+    const fresh = await loadState(); chain = fresh; renderState(); renderWallet()
+    if (!isAuthority()) throw new Error('The connected wallet is not the current upgrade authority on chain.')
+    const payer = current.address
+    say('Fetching blockhash...')
+    const { value: bh } = await rpc('getLatestBlockhash', [{ commitment: 'confirmed' }])
+    const tx = compile(payer, [cuLimit(CU_LIMIT), cuPrice(PRIORITY_MICROLAMPORTS), loaderIx], bh.blockhash)
+    say('Simulating...')
+    const sim = await rpc('simulateTransaction', [b64encode(tx), { encoding: 'base64', sigVerify: false, replaceRecentBlockhash: false, commitment: 'confirmed' }])
+    if (sim.value.err) throw new Error('Simulation failed, nothing was signed.\n' + JSON.stringify(sim.value.err) + '\n' + (sim.value.logs ?? []).join('\n'))
+    say(`Simulation ok (${sim.value.unitsConsumed ?? '?'} compute units). Approve "${label}" in your wallet...`)
+    let sig
+    const f = current.wallet.features
+    if (f['solana:signTransaction']) {
+      const [out] = await f['solana:signTransaction'].signTransaction({ account: current.account, transaction: tx, chain: chainId() })
+      const signed = out.signedTransaction
+      if (!eq(signed.slice(65), tx.slice(65))) {
+        // Some wallets add their own safety or fee instructions. Simulate what they signed before sending it.
+        say('The wallet edited the transaction; simulating the signed version...')
+        const sim2 = await rpc('simulateTransaction', [b64encode(signed), { encoding: 'base64', sigVerify: true, commitment: 'confirmed' }])
+        if (sim2.value.err) throw new Error('The wallet-edited transaction fails simulation. Not sending.\n' + JSON.stringify(sim2.value.err) + '\n' + (sim2.value.logs ?? []).join('\n'))
+      }
+      say('Sending...')
+      sig = await rpc('sendTransaction', [b64encode(signed), { encoding: 'base64', skipPreflight: false, preflightCommitment: 'confirmed', maxRetries: 5 }])
+    } else {
+      const [out] = await f['solana:signAndSendTransaction'].signAndSendTransaction({ account: current.account, transaction: tx, chain: chainId() })
+      sig = typeof out.signature === 'string' ? out.signature : b58encode(out.signature)
+    }
+    say('Sent ' + sig + '\nWaiting for confirmation...')
+    for (;;) {
+      const st = await rpc('getSignatureStatuses', [[sig], { searchTransactionHistory: false }])
+      const s = st.value[0]
+      if (s?.err) throw new Error('Transaction failed on chain: ' + JSON.stringify(s.err) + '\n' + sig)
+      if (s && (s.confirmationStatus === 'confirmed' || s.confirmationStatus === 'finalized')) break
+      const h = await rpc('getBlockHeight', [{ commitment: 'confirmed' }])
+      if (h > bh.lastValidBlockHeight) throw new Error('Blockhash expired before the transaction landed. Nothing changed; try again.\n' + sig)
+      await new Promise((r) => setTimeout(r, 1200))
+    }
+    chain = await loadState(); renderState(); renderWallet()
+    say(`${label}: confirmed.`)
+    showLink(msgEl, sig)
+    onDone?.()
+  } catch (e) { say((e.message || String(e)), true) }
+}
+function showLink(msgEl, sig) {
+  const url = solscanTx(sig)
+  const d = document.createElement('div'); d.className = 'result'
+  d.innerHTML = '<div class="muted">Solscan link</div><div class="row"><a target="_blank" rel="noopener" class="txlink"></a><button class="copy">Copy</button></div>'
+  const a = d.querySelector('a'); a.href = url; a.textContent = url; a.dataset.sig = sig
+  d.querySelector('.copy').onclick = async (ev) => { try { await navigator.clipboard.writeText(url); ev.target.textContent = 'Copied' } catch { prompt('Copy the link', url) } }
+  msgEl.appendChild(d)
+}
+
+// ---------- buttons ----------
+function addrOk(v) { try { pubkey(v); return true } catch { return false } }
+function gate() {
+  const auth = isAuthority()
+  $('revokeBtn').disabled = !(auth && $('revokeConfirm').value === 'REVOKE')
+  $('closeBtn').disabled = !(auth && $('closeConfirm').value === 'CLOSE' && addrOk($('recipient').value))
+  $('transferBtn').disabled = !(auth && $('transferConfirm').value === 'TRANSFER' && addrOk($('newAuth').value))
+}
+['revokeConfirm', 'closeConfirm', 'transferConfirm', 'newAuth'].forEach((id) => $(id).addEventListener('input', gate))
+$('recipient').addEventListener('input', () => { $('recipient').dataset.auto = '0'; gate() })
+$('refresh').onclick = refresh
+$('rpc').addEventListener('change', refresh)
+$('pid').addEventListener('change', refresh)
+
+$('revokeBtn').onclick = () => {
+  if (!confirm('Revoke the upgrade authority FOREVER?\n\nThe program can never be changed or closed again and the deposit stays locked for good.')) return
+  run('Revoke', setAuthorityIx(chain.programdata, current.address, null), $('revokeMsg'), () => { $('revokeConfirm').value = ''; gate() })
+}
+$('closeBtn').onclick = () => {
+  const to = $('recipient').value.trim()
+  if (to === chain.programdata || to === chain.programId) { $('closeMsg').className = 'status err'; $('closeMsg').textContent = 'The recipient cannot be the program or its program data.'; return }
+  if (!confirm(`Close the program for good?\n\nIt stops working now, the ID can never be reused, and ${fmtSol(chain.lamports)} goes to\n${to}`)) return
+  run('Close', closeIx(chain.programdata, to, current.address, chain.programId), $('closeMsg'), () => { $('closeConfirm').value = ''; gate() })
+}
+$('transferBtn').onclick = () => {
+  const to = $('newAuth').value.trim()
+  if (to === current.address) { $('transferMsg').className = 'status err'; $('transferMsg').textContent = 'That is already the authority.'; return }
+  if (to === chain.programdata || to === chain.programId) { $('transferMsg').className = 'status err'; $('transferMsg').textContent = 'The new authority cannot be the program or its program data.'; return }
+  if (!confirm(`Hand full control of the program to\n${to}\n\nThis wallet loses control as soon as it lands.`)) return
+  run('Transfer authority', setAuthorityIx(chain.programdata, current.address, to), $('transferMsg'), () => { $('transferConfirm').value = ''; gate() })
+}
+
+startWallets()
+renderWallet()
+refresh()
+</script>
+</body>
+</html>

@@ -1,0 +1,7 @@
+target/
+node_modules/
+test-ledger/
+.anchor/
+*.log
+# Throwaway keys and program keypairs never go in git.
+.keys/

@@ -1,0 +1,19 @@
+{
+  "name": "sidebid-program-tests",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --test --test-reporter=spec tests/*.test.mjs",
+    "build:test": "sh scripts/build-test.sh",
+    "build:withdraw-only": "sh scripts/build-withdraw-only.sh",
+    "check-release": "node scripts/check-release.mjs",
+    "test:shutdown": "SIDEBID_REQUIRE_WO=1 node --test --test-reporter=spec tests/08-shutdown.test.mjs"
+  },
+  "devDependencies": {
+    "@solana/spl-token": "^0.4.15",
+    "@solana/web3.js": "^1.99.0",
+    "bs58": "^6.0.0",
+    "litesvm": "^1.6.2",
+    "tweetnacl": "^1.0.3"
+  }
+}

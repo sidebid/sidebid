@@ -1,0 +1,1782 @@
+{
+  "address": "5ATUD6arr5QJQtGxH8naPwFcZoDsuosmAVJcsaZ19HDp",
+  "metadata": {
+    "name": "sidebid",
+    "version": "0.1.0",
+    "spec": "0.1.0",
+    "description": "Sidebid: sell tokens on the side to the best bid without touching the chart"
+  },
+  "instructions": [
+    {
+      "name": "accept",
+      "docs": [
+        "Seller only, inside the window after the end. One transaction: tokens",
+        "from the seller to the winner, SOL from the vault to the seller. May",
+        "spend from any token account the seller owns. `expected_*` stop a",
+        "recreated listing swapping the deal under a pending signature."
+      ],
+      "discriminator": [
+        65,
+        150,
+        70,
+        216,
+        133,
+        6,
+        107,
+        4
+      ],
+      "accounts": [
+        {
+          "name": "seller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_credit",
+          "writable": true
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "winner_token_account",
+          "writable": true
+        },
+        {
+          "name": "rent_receiver",
+          "writable": true
+        },
+        {
+          "name": "rent_receiver_credit",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "expected_amount",
+          "type": "u64"
+        },
+        {
+          "name": "expected_bid",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "buy_fixed",
+      "docs": [
+        "First buyer takes a fixed price listing. The buyer is the only signer.",
+        "`expected_*` protect against a relist at the same address."
+      ],
+      "discriminator": [
+        204,
+        223,
+        21,
+        126,
+        236,
+        177,
+        34,
+        114
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "seller_credit",
+          "writable": true
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "buyer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "expected_price",
+          "type": "u64"
+        },
+        {
+          "name": "expected_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "buy_fixed_with_pass",
+      "docs": [
+        "Fixed buy gated by a server pass. The instruction right before this one",
+        "must be the ed25519 verify of the pass. The claim account makes a second",
+        "use of the same X id in this campaign fail."
+      ],
+      "discriminator": [
+        15,
+        219,
+        225,
+        150,
+        157,
+        214,
+        55,
+        147
+      ],
+      "accounts": [
+        {
+          "name": "buyer",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "claim",
+          "docs": [
+            "Keyed by pass signer too: otherwise anyone could make a listing naming",
+            "someone else's campaign, sign their own passes, and burn that campaign's",
+            "claims for chosen X ids."
+          ],
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  108,
+                  97,
+                  105,
+                  109
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing.pass_signer",
+                "account": "Listing"
+              },
+              {
+                "kind": "account",
+                "path": "listing.campaign",
+                "account": "Listing"
+              },
+              {
+                "kind": "arg",
+                "path": "x_id_hash"
+              }
+            ]
+          }
+        },
+        {
+          "name": "instructions",
+          "address": "Sysvar1nstructions1111111111111111111111111"
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "seller_credit",
+          "writable": true
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "buyer_token_account",
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "x_id_hash",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "pass_expiry",
+          "type": "i64"
+        },
+        {
+          "name": "expected_price",
+          "type": "u64"
+        },
+        {
+          "name": "expected_amount",
+          "type": "u64"
+        }
+      ]
+    },
+    {
+      "name": "cancel",
+      "docs": [
+        "Seller only. Before the end, or any time with no bids. Repays the top",
+        "bidder, removes this listing's delegate and closes the listing. Never",
+        "touches a delegate the seller set for something else."
+      ],
+      "discriminator": [
+        232,
+        219,
+        223,
+        41,
+        219,
+        236,
+        220,
+        190
+      ],
+      "accounts": [
+        {
+          "name": "seller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_credit",
+          "writable": true
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true
+        },
+        {
+          "name": "top_bidder",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "top_bidder_credit",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "claim_credit",
+      "docs": [
+        "Pays out a credit: SOL that could not be pushed to an account because",
+        "that account cannot legally receive it (see `checks::can_receive`)."
+      ],
+      "discriminator": [
+        190,
+        242,
+        172,
+        79,
+        29,
+        82,
+        22,
+        163
+      ],
+      "accounts": [
+        {
+          "name": "owner",
+          "signer": true
+        },
+        {
+          "name": "credit",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  99,
+                  114,
+                  101,
+                  100,
+                  105,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "listing"
+              },
+              {
+                "kind": "account",
+                "path": "owner"
+              }
+            ]
+          }
+        },
+        {
+          "name": "destination",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "listing",
+          "type": "pubkey"
+        }
+      ]
+    },
+    {
+      "name": "close_listing",
+      "docs": [
+        "Anyone may close a Gone or Ghosted listing, or an expired one with no",
+        "bids. Rent goes back to whoever paid it, never to the caller. A listing",
+        "whose delegate is still on the seller's account stays open for the",
+        "seller's `cancel`, the only path that can remove it: strangers can't",
+        "revoke, and closing first would leave a dangling approval behind."
+      ],
+      "discriminator": [
+        33,
+        15,
+        192,
+        81,
+        78,
+        175,
+        159,
+        97
+      ],
+      "accounts": [
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_token_account"
+        },
+        {
+          "name": "rent_receiver",
+          "writable": true
+        },
+        {
+          "name": "rent_receiver_credit",
+          "writable": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "create_accept_listing",
+      "docs": [
+        "Server only: opens a tagged card for a wallet that holds the tokens now.",
+        "No seller signature and no delegate, so nothing here can touch the",
+        "tokens. `listing_id` comes from the server, normally a hash of the post."
+      ],
+      "discriminator": [
+        186,
+        189,
+        1,
+        207,
+        30,
+        22,
+        153,
+        47
+      ],
+      "accounts": [
+        {
+          "name": "server",
+          "writable": true,
+          "signer": true,
+          "address": "5uoQXnzrrrsrS5VoFKqnwVtBukrhbA4NuXNaJAPz5yTm"
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  97,
+                  99,
+                  99,
+                  101,
+                  112,
+                  116
+                ]
+              },
+              {
+                "kind": "arg",
+                "path": "listing_id"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller"
+        },
+        {
+          "name": "seller_token_account",
+          "docs": [
+            "Read only: must hold the amount. Associated token account only, as in",
+            "create_listing, so \"the seller no longer holds\" reads a stable address."
+          ],
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "seller"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "_listing_id",
+          "type": {
+            "array": [
+              "u8",
+              32
+            ]
+          }
+        },
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreateAcceptArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "create_listing",
+      "docs": [
+        "Creates the listing and approves its PDA for exactly `amount`."
+      ],
+      "discriminator": [
+        18,
+        168,
+        45,
+        24,
+        191,
+        31,
+        117,
+        54
+      ],
+      "accounts": [
+        {
+          "name": "seller",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  108,
+                  105,
+                  115,
+                  116,
+                  105,
+                  110,
+                  103
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "seller_token_account"
+              }
+            ]
+          }
+        },
+        {
+          "name": "vault",
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "account",
+                "path": "seller"
+              },
+              {
+                "kind": "account",
+                "path": "token_program"
+              },
+              {
+                "kind": "account",
+                "path": "mint"
+              }
+            ],
+            "program": {
+              "kind": "const",
+              "value": [
+                140,
+                151,
+                37,
+                143,
+                78,
+                36,
+                137,
+                241,
+                187,
+                61,
+                16,
+                41,
+                20,
+                142,
+                13,
+                131,
+                11,
+                90,
+                19,
+                153,
+                218,
+                255,
+                16,
+                132,
+                4,
+                142,
+                123,
+                216,
+                219,
+                233,
+                248,
+                89
+              ]
+            }
+          }
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "args",
+          "type": {
+            "defined": {
+              "name": "CreateListingArgs"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "place_bid",
+      "docs": [
+        "Takes a new top bid. The previous bidder is repaid in this transaction.",
+        "`expected_token_amount`, `expected_mint` and `max_end_time` stop a seller",
+        "changing the deal under a pending bid by cancelling and relisting at the",
+        "same address. Clients pass the listing's `hard_end_time` as `max_end_time`."
+      ],
+      "discriminator": [
+        238,
+        77,
+        148,
+        91,
+        200,
+        151,
+        92,
+        146
+      ],
+      "accounts": [
+        {
+          "name": "bidder",
+          "writable": true,
+          "signer": true
+        },
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_token_account"
+        },
+        {
+          "name": "prev_bidder",
+          "docs": [
+            "kind of account, which is why it is unchecked and only credited."
+          ],
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "prev_bidder_credit",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": [
+        {
+          "name": "amount",
+          "type": "u64"
+        },
+        {
+          "name": "expected_token_amount",
+          "type": "u64"
+        },
+        {
+          "name": "expected_mint",
+          "type": "pubkey"
+        },
+        {
+          "name": "max_end_time",
+          "type": "i64"
+        }
+      ]
+    },
+    {
+      "name": "refund",
+      "docs": [
+        "Anyone may call this when the seller can no longer deliver (moved",
+        "tokens, revoked, closed or froze the account) or when a finished auction",
+        "has stayed unsettled past the grace period. The top bidder gets all SOL",
+        "back and the listing is marked Gone. In accept mode the same holds once",
+        "the accept window has passed or the seller no longer holds the tokens,",
+        "and the listing is marked Ghosted."
+      ],
+      "discriminator": [
+        2,
+        96,
+        183,
+        251,
+        63,
+        208,
+        46,
+        46
+      ],
+      "accounts": [
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller_token_account"
+        },
+        {
+          "name": "top_bidder",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "top_bidder_credit",
+          "writable": true,
+          "optional": true
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    },
+    {
+      "name": "settle",
+      "docs": [
+        "After the end, anyone may settle: tokens to the winner, SOL to the",
+        "seller, listing closed, all in one transaction."
+      ],
+      "discriminator": [
+        175,
+        42,
+        185,
+        87,
+        144,
+        131,
+        102,
+        212
+      ],
+      "accounts": [
+        {
+          "name": "listing",
+          "writable": true
+        },
+        {
+          "name": "vault",
+          "writable": true,
+          "pda": {
+            "seeds": [
+              {
+                "kind": "const",
+                "value": [
+                  118,
+                  97,
+                  117,
+                  108,
+                  116
+                ]
+              },
+              {
+                "kind": "account",
+                "path": "listing"
+              }
+            ]
+          }
+        },
+        {
+          "name": "seller",
+          "writable": true
+        },
+        {
+          "name": "seller_credit",
+          "writable": true
+        },
+        {
+          "name": "seller_token_account",
+          "writable": true
+        },
+        {
+          "name": "mint"
+        },
+        {
+          "name": "winner_token_account",
+          "docs": [
+            "Any token account the winner owns, not only their ATA. A winner cannot",
+            "block settle by breaking one account, as anyone can open a fresh one."
+          ],
+          "writable": true
+        },
+        {
+          "name": "token_program"
+        },
+        {
+          "name": "system_program",
+          "address": "11111111111111111111111111111111"
+        }
+      ],
+      "args": []
+    }
+  ],
+  "accounts": [
+    {
+      "name": "Claim",
+      "discriminator": [
+        155,
+        70,
+        22,
+        176,
+        123,
+        215,
+        246,
+        102
+      ]
+    },
+    {
+      "name": "Listing",
+      "discriminator": [
+        218,
+        32,
+        50,
+        73,
+        43,
+        134,
+        26,
+        58
+      ]
+    }
+  ],
+  "events": [
+    {
+      "name": "Accepted",
+      "discriminator": [
+        54,
+        162,
+        140,
+        167,
+        179,
+        190,
+        95,
+        70
+      ]
+    },
+    {
+      "name": "BidPlaced",
+      "discriminator": [
+        135,
+        53,
+        176,
+        83,
+        193,
+        69,
+        108,
+        61
+      ]
+    },
+    {
+      "name": "Bought",
+      "discriminator": [
+        193,
+        56,
+        215,
+        24,
+        156,
+        76,
+        42,
+        104
+      ]
+    },
+    {
+      "name": "Cancelled",
+      "discriminator": [
+        136,
+        23,
+        42,
+        65,
+        143,
+        233,
+        234,
+        46
+      ]
+    },
+    {
+      "name": "CreditParked",
+      "discriminator": [
+        199,
+        199,
+        35,
+        127,
+        142,
+        74,
+        31,
+        57
+      ]
+    },
+    {
+      "name": "Listed",
+      "discriminator": [
+        243,
+        173,
+        136,
+        195,
+        125,
+        241,
+        12,
+        99
+      ]
+    },
+    {
+      "name": "MarkedGone",
+      "discriminator": [
+        212,
+        219,
+        184,
+        44,
+        232,
+        61,
+        121,
+        64
+      ]
+    },
+    {
+      "name": "Settled",
+      "discriminator": [
+        232,
+        210,
+        40,
+        17,
+        142,
+        124,
+        145,
+        238
+      ]
+    }
+  ],
+  "errors": [
+    {
+      "code": 6000,
+      "name": "ZeroAmount",
+      "msg": "Amount must be above zero"
+    },
+    {
+      "code": 6001,
+      "name": "PriceTooLow",
+      "msg": "Price or minimum is below the floor"
+    },
+    {
+      "code": 6002,
+      "name": "InsufficientTokens",
+      "msg": "Seller holds less than the listed amount"
+    },
+    {
+      "code": 6003,
+      "name": "TokenAccountFrozen",
+      "msg": "Token account is frozen"
+    },
+    {
+      "code": 6004,
+      "name": "BadDuration",
+      "msg": "Length out of range"
+    },
+    {
+      "code": 6005,
+      "name": "PassOnBidding",
+      "msg": "Bidding listings cannot carry a pass"
+    },
+    {
+      "code": 6006,
+      "name": "BadPassConfig",
+      "msg": "Pass signer must be set"
+    },
+    {
+      "code": 6007,
+      "name": "UnsupportedMintExtension",
+      "msg": "This mint has a Token 2022 extension Sidebid does not accept"
+    },
+    {
+      "code": 6008,
+      "name": "BadMint",
+      "msg": "Malformed mint account"
+    },
+    {
+      "code": 6009,
+      "name": "NotLive",
+      "msg": "Listing is not live"
+    },
+    {
+      "code": 6010,
+      "name": "WrongMode",
+      "msg": "Wrong listing mode for this instruction"
+    },
+    {
+      "code": 6011,
+      "name": "ListingChanged",
+      "msg": "Listing differs from what this transaction expected"
+    },
+    {
+      "code": 6012,
+      "name": "AuctionEnded",
+      "msg": "Auction has ended"
+    },
+    {
+      "code": 6013,
+      "name": "AuctionNotEnded",
+      "msg": "Auction has not ended"
+    },
+    {
+      "code": 6014,
+      "name": "SellerTokensUnavailable",
+      "msg": "Seller can no longer deliver these tokens"
+    },
+    {
+      "code": 6015,
+      "name": "BidBelowMinimum",
+      "msg": "Bid is below the minimum"
+    },
+    {
+      "code": 6016,
+      "name": "BidNotAboveTop",
+      "msg": "Bid must be above the top bid"
+    },
+    {
+      "code": 6017,
+      "name": "MissingPrevBidder",
+      "msg": "Previous bidder accounts are missing or wrong"
+    },
+    {
+      "code": 6018,
+      "name": "NoBids",
+      "msg": "Auction has no bids"
+    },
+    {
+      "code": 6019,
+      "name": "RefundNotAllowed",
+      "msg": "Refund is only for listings the seller can no longer deliver"
+    },
+    {
+      "code": 6020,
+      "name": "PassRequired",
+      "msg": "This listing needs a pass"
+    },
+    {
+      "code": 6021,
+      "name": "PassNotUsed",
+      "msg": "This listing takes no pass"
+    },
+    {
+      "code": 6022,
+      "name": "PassExpired",
+      "msg": "Pass has expired"
+    },
+    {
+      "code": 6023,
+      "name": "BadPass",
+      "msg": "Pass verify instruction is missing or invalid"
+    },
+    {
+      "code": 6024,
+      "name": "ListingExpired",
+      "msg": "Fixed price listing has expired"
+    },
+    {
+      "code": 6025,
+      "name": "CloseNotAllowed",
+      "msg": "Listing cannot be closed in this state"
+    },
+    {
+      "code": 6026,
+      "name": "BadCreditAccount",
+      "msg": "Credit account address is wrong"
+    },
+    {
+      "code": 6027,
+      "name": "NothingToClaim",
+      "msg": "Nothing to claim"
+    },
+    {
+      "code": 6028,
+      "name": "RaiseTooSmall",
+      "msg": "Raise must be at least 2% or 0.001 SOL, whichever is larger"
+    },
+    {
+      "code": 6029,
+      "name": "DelegateStillSet",
+      "msg": "The seller must cancel to remove the delegate first"
+    },
+    {
+      "code": 6030,
+      "name": "NotListingServer",
+      "msg": "Only the listing server key may create this listing"
+    },
+    {
+      "code": 6031,
+      "name": "NotSeller",
+      "msg": "Only the seller stored on the listing may do this"
+    },
+    {
+      "code": 6032,
+      "name": "AcceptWindowClosed",
+      "msg": "The accept window has closed"
+    },
+    {
+      "code": 6033,
+      "name": "Overflow",
+      "msg": "Arithmetic overflow"
+    }
+  ],
+  "types": [
+    {
+      "name": "Accepted",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "BidPlaced",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Bought",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "buyer",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Cancelled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "refunded",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Claim",
+      "docs": [
+        "Exists only to make a second use of one X id fail. Never closed."
+      ],
+      "type": {
+        "kind": "struct",
+        "fields": []
+      }
+    },
+    {
+      "name": "CreateAcceptArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "min_bid",
+            "type": "u64"
+          },
+          {
+            "name": "duration_secs",
+            "type": "u64"
+          },
+          {
+            "name": "accept_window_secs",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreateListingArgs",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "ListingMode"
+              }
+            }
+          },
+          {
+            "name": "amount",
+            "docs": [
+              "Token base units sold, all or nothing."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "docs": [
+              "Fixed price, or minimum bid, in lamports."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "duration_secs",
+            "docs": [
+              "Bidding: required. Fixed: 0 means no expiry."
+            ],
+            "type": "u64"
+          },
+          {
+            "name": "pass",
+            "type": {
+              "option": {
+                "defined": {
+                  "name": "PassConfig"
+                }
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "CreditParked",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "owner",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Listed",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "ListingMode"
+              }
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "Listing",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_account",
+            "type": "pubkey"
+          },
+          {
+            "name": "mint",
+            "type": "pubkey"
+          },
+          {
+            "name": "token_program",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          },
+          {
+            "name": "end_time",
+            "type": "i64"
+          },
+          {
+            "name": "top_bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "top_bid",
+            "type": "u64"
+          },
+          {
+            "name": "pass_signer",
+            "type": "pubkey"
+          },
+          {
+            "name": "campaign",
+            "type": "pubkey"
+          },
+          {
+            "name": "mode",
+            "type": {
+              "defined": {
+                "name": "ListingMode"
+              }
+            }
+          },
+          {
+            "name": "state",
+            "type": {
+              "defined": {
+                "name": "ListingState"
+              }
+            }
+          },
+          {
+            "name": "decimals",
+            "type": "u8"
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "vault_bump",
+            "type": "u8"
+          },
+          {
+            "name": "rent_payer",
+            "docs": [
+              "Who gets the rent back: the seller, or the server for a tagged card."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "accept_window_secs",
+            "docs": [
+              "Accept mode only. Seconds after end_time the seller may accept."
+            ],
+            "type": "i64"
+          },
+          {
+            "name": "hard_end_time",
+            "docs": [
+              "Latest end_time any bid can reach. Bidding and accept: original end plus",
+              "MAX_EXTENSION_SECS. Fixed: same as end_time."
+            ],
+            "type": "i64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingMode",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Bidding"
+          },
+          {
+            "name": "Fixed"
+          },
+          {
+            "name": "Accept"
+          }
+        ]
+      }
+    },
+    {
+      "name": "ListingState",
+      "type": {
+        "kind": "enum",
+        "variants": [
+          {
+            "name": "Live"
+          },
+          {
+            "name": "Gone"
+          },
+          {
+            "name": "Ghosted"
+          }
+        ]
+      }
+    },
+    {
+      "name": "MarkedGone",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "bidder",
+            "type": "pubkey"
+          },
+          {
+            "name": "refunded",
+            "type": "u64"
+          }
+        ]
+      }
+    },
+    {
+      "name": "PassConfig",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "signer",
+            "docs": [
+              "Ed25519 key whose passes this listing accepts. Chosen by the seller."
+            ],
+            "type": "pubkey"
+          },
+          {
+            "name": "campaign",
+            "docs": [
+              "Shared campaign id. Default means the listing is its own campaign."
+            ],
+            "type": "pubkey"
+          }
+        ]
+      }
+    },
+    {
+      "name": "Settled",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "listing",
+            "type": "pubkey"
+          },
+          {
+            "name": "winner",
+            "type": "pubkey"
+          },
+          {
+            "name": "seller",
+            "type": "pubkey"
+          },
+          {
+            "name": "amount",
+            "type": "u64"
+          },
+          {
+            "name": "price",
+            "type": "u64"
+          }
+        ]
+      }
+    }
+  ]
+}

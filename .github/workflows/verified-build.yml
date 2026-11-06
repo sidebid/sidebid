@@ -1,0 +1,89 @@
+# Reproducible build of the program with solana-verify, in Docker on GitHub's
+# runners. Prints the executable hash and uploads sidebid.so, so anyone can
+# compare it with `solana-verify get-program-hash -u mainnet-beta 5ATUD6arr5QJQtGxH8naPwFcZoDsuosmAVJcsaZ19HDp`
+# without installing Docker.
+#
+# The listing server key and program id are literals in
+# program/programs/sidebid/src/lib.rs, so the build needs no environment and
+# this workflow uses no secrets. The public test key only enters with the Cargo
+# feature test-listing-key, which this build never turns on.
+
+name: Verified build
+
+on:
+  workflow_dispatch:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: read
+
+env:
+  SOLANA_VERIFY_VERSION: "0.5.2"
+
+jobs:
+  build:
+    runs-on: ubuntu-24.04
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Listing key is compiled in
+        working-directory: program
+        run: |
+          LIB=programs/sidebid/src/lib.rs
+          if grep -q 'env!("SIDEBID_LISTING_KEY")' "$LIB"; then
+            echo "::error::lib.rs reads the listing key from the environment; the release key must be a literal"
+            exit 1
+          fi
+          grep -n 'LISTING_SERVER_KEY: Pubkey' "$LIB"
+          echo "LABEL=release" >> "$GITHUB_ENV"
+
+      - name: Cache solana-verify
+        id: cache
+        uses: actions/cache@v4
+        with:
+          path: ~/.cargo/bin/solana-verify
+          key: solana-verify-${{ env.SOLANA_VERIFY_VERSION }}-${{ runner.os }}
+
+      - name: Install solana-verify
+        if: steps.cache.outputs.cache-hit != 'true'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y pkg-config libssl-dev libudev-dev
+          cargo install solana-verify --version "$SOLANA_VERIFY_VERSION" --locked
+
+      - name: Build in Docker
+        working-directory: program
+        run: solana-verify build --library-name sidebid --arch v3
+
+      - name: Hash
+        working-directory: program
+        run: |
+          SO=target/deploy/sidebid.so
+          HASH=$(solana-verify get-executable-hash "$SO")
+          SIZE=$(stat -c %s "$SO")
+          echo "commit:  $GITHUB_SHA"
+          echo "label:   $LABEL"
+          echo "hash:    $HASH"
+          echo "size:    $SIZE bytes"
+          {
+            echo "### Verified build ($LABEL)"
+            echo ""
+            echo "| | |"
+            echo "|---|---|"
+            echo "| Commit | \`$GITHUB_SHA\` |"
+            echo "| Executable hash | \`$HASH\` |"
+            echo "| Size | $SIZE bytes |"
+            echo ""
+            echo "Compare with: \`solana-verify get-program-hash -u mainnet-beta 5ATUD6arr5QJQtGxH8naPwFcZoDsuosmAVJcsaZ19HDp\`"
+          } >> "$GITHUB_STEP_SUMMARY"
+          echo "$HASH  sidebid.so" > target/deploy/sidebid.so.hash
+
+      - uses: actions/upload-artifact@v4
+        with:
+          name: sidebid-${{ env.LABEL }}-${{ github.sha }}
+          path: |
+            program/target/deploy/sidebid.so
+            program/target/deploy/sidebid.so.hash
+          if-no-files-found: error
